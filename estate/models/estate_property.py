@@ -66,6 +66,10 @@ class EstateProperty(models.Model):
         "property_id",
         string="Offers",
     )
+    best_price = fields.Float(
+        string="Best Offer",
+        compute="_compute_best_price",
+    )
     state = fields.Selection(
         selection=[
             ("new", "New"),
@@ -84,6 +88,21 @@ class EstateProperty(models.Model):
     def _compute_total_area(self):
         for record in self:
             record.total_area = (record.living_area or 0) + (record.garden_area or 0)
+
+    @api.depends("offer_ids.price")
+    def _compute_best_price(self):
+        for record in self:
+            record.best_price = max(record.offer_ids.mapped("price")) if record.offer_ids else 0.0
+
+    @api.onchange("garden")
+    def _onchange_garden(self):
+        # Form-only helper (like livewire/alpine UX) — not server business logic
+        if self.garden:
+            self.garden_area = 10
+            self.garden_orientation = "north"
+        else:
+            self.garden_area = 0
+            self.garden_orientation = False
 
     def action_offer_received(self):
         for record in self:
