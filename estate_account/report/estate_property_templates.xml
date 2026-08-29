@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="report_property_offers_account" inherit_id="estate.report_property_offers">
+        <xpath expr="//h3[hasclass('mt-3')]" position="before">
+            <t t-if="property.state == 'sold' and property.buyer_id">
+                <t t-set="invoice"
+                   t-value="property.env['account.move'].search([
+                       ('partner_id', '=', property.buyer_id.id),
+                       ('move_type', '=', 'out_invoice'),
+                       ('state', '!=', 'cancel'),
+                   ], order='id desc', limit=1)"/>
+                <div class="mb-3 alert alert-info" t-if="invoice">
+                    <strong>Customer invoice: </strong>
+                    <span t-field="invoice.name"/>
+                    —
+                    <span t-field="invoice.amount_total"/>
+                </div>
+            </t>
+        </xpath>
+    </template>
+</odoo>

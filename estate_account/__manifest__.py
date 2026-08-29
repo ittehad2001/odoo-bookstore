@@ -9,7 +9,9 @@
     "author": "Ittehad",
     "category": "Real Estate",
     "depends": ["estate", "account"],
-    "data": [],
+    "data": [
+        "report/estate_property_templates.xml",
+    ],
     "installable": True,
     "license": "LGPL-3",
 }
