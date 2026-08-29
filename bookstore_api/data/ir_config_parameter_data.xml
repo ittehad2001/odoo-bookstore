@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="bookstore_api_checkout_key" model="ir.config_parameter">
+        <field name="key">bookstore_api.checkout_key</field>
+        <field name="value">dev-bookstore-key-change-me</field>
+    </record>
+</odoo>

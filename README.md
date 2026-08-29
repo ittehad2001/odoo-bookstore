@@ -68,6 +68,8 @@ After Python/XML changes: **restart** (for Python) and/or **Upgrade** the module
 |--------|---------|
 | `bookstore` | Portfolio module — v1.3: sales + stock + User/Admin security groups |
 | `bookstore_account` | Invoice customer when a bookstore sale is confirmed |
+| `bookstore_api` | Public JSON API for the React storefront |
+| `bookstore-web/` | Vite React storefront (Ink & Spine) |
 | `estate` | Real-estate learning app — **Server framework 101 complete** (Ch.1–15 + PDF reports) |
 | `estate_account` | Link module: invoice buyer when property is Sold (+ report inherit) |
 
