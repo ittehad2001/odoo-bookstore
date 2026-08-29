@@ -2,6 +2,7 @@ from dateutil.relativedelta import relativedelta
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools.float_utils import float_compare
 
 
 class EstatePropertyOffer(models.Model):
@@ -66,11 +67,20 @@ class EstatePropertyOffer(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get("property_id") and vals.get("price") is not None:
+                prop = self.env["estate.property"].browse(vals["property_id"])
+                if prop.offer_ids:
+                    max_offer = max(prop.offer_ids.mapped("price"))
+                    if float_compare(vals["price"], max_offer, precision_rounding=0.01) <= 0:
+                        raise UserError(
+                            "The offer must be higher than existing offers "
+                            f"(current best: {max_offer})."
+                        )
         offers = super().create(vals_list)
         for offer in offers:
-            prop = offer.property_id
-            if prop.state == "new":
-                prop.state = "offer_received"
+            if offer.property_id.state == "new":
+                offer.property_id.state = "offer_received"
         return offers
 
     def action_accept(self):
@@ -84,7 +94,6 @@ class EstatePropertyOffer(models.Model):
             if accepted:
                 raise UserError("Only one offer can be accepted for a property.")
             offer.status = "accepted"
-            # refuse the rest
             (offer.property_id.offer_ids - offer).write({"status": "refused"})
             offer.property_id.write(
                 {
