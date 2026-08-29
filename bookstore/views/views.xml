@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Author views -->
+    <record id="bookstore_author_view_list" model="ir.ui.view">
+        <field name="name">bookstore.author.list</field>
+        <field name="model">bookstore.author</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="bookstore_author_view_form" model="ir.ui.view">
+        <field name="name">bookstore.author.form</field>
+        <field name="model">bookstore.author</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="bio"/>
+                    </group>
+                    <notebook>
+                        <page string="Books">
+                            <field name="book_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="isbn"/>
+                                    <field name="price"/>
+                                    <field name="active"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="bookstore_author_action" model="ir.actions.act_window">
+        <field name="name">Authors</field>
+        <field name="res_model">bookstore.author</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Book views -->
+    <record id="bookstore_book_view_list" model="ir.ui.view">
+        <field name="name">bookstore.book.list</field>
+        <field name="model">bookstore.book</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="isbn"/>
+                <field name="author_id"/>
+                <field name="price"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="bookstore_book_view_form" model="ir.ui.view">
+        <field name="name">bookstore.book.form</field>
+        <field name="model">bookstore.book</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="isbn"/>
+                            <field name="author_id"/>
+                        </group>
+                        <group>
+                            <field name="price"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="bookstore_book_action" model="ir.actions.act_window">
+        <field name="name">Books</field>
+        <field name="res_model">bookstore.book</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menus -->
+    <menuitem id="bookstore_menu_root"
+              name="Bookstore"
+              sequence="20"/>
+
+    <menuitem id="bookstore_menu_books"
+              name="Books"
+              parent="bookstore_menu_root"
+              action="bookstore_book_action"
+              sequence="10"/>
+
+    <menuitem id="bookstore_menu_authors"
+              name="Authors"
+              parent="bookstore_menu_root"
+              action="bookstore_author_action"
+              sequence="20"/>
+</odoo>
