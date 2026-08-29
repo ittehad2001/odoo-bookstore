@@ -20,4 +20,8 @@ class BookstoreBook(models.Model):
         ondelete="restrict",
     )
     price = fields.Float(string="Price")
+    qty_available = fields.Float(
+        string="Quantity On Hand",
+        default=0.0,
+    )
     active = fields.Boolean(default=True)

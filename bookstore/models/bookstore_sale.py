@@ -1,5 +1,8 @@
+from collections import defaultdict
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools.float_utils import float_compare
 
 
 class BookstoreSale(models.Model):
@@ -61,12 +64,37 @@ class BookstoreSale(models.Model):
                 )
         return super().create(vals_list)
 
+    def _quantities_by_book(self):
+        """Sum line quantities per book (Laravel: groupBy book_id → sum qty)."""
+        self.ensure_one()
+        qty_by_book = defaultdict(float)
+        for line in self.line_ids:
+            if line.book_id:
+                qty_by_book[line.book_id] += line.quantity or 0.0
+        return qty_by_book
+
+    def _apply_stock(self, sign):
+        """sign=-1 on confirm (outbound), sign=+1 on cancel from confirmed (return)."""
+        for sale in self:
+            for book, qty in sale._quantities_by_book().items():
+                if float_compare(qty, 0.0, precision_rounding=0.01) <= 0:
+                    continue
+                if sign < 0 and float_compare(
+                    book.qty_available, qty, precision_rounding=0.01
+                ) < 0:
+                    raise UserError(
+                        f"Not enough stock for '{book.name}'. "
+                        f"Available: {book.qty_available}, needed: {qty}."
+                    )
+                book.qty_available = book.qty_available + (sign * qty)
+
     def action_confirm(self):
         for sale in self:
             if sale.state != "draft":
                 raise UserError("Only draft sales can be confirmed.")
             if not sale.line_ids:
                 raise UserError("Add at least one line before confirming.")
+            sale._apply_stock(-1)
             sale.state = "confirmed"
 
     def action_cancel(self):
@@ -74,8 +102,7 @@ class BookstoreSale(models.Model):
             if sale.state == "canceled":
                 raise UserError("This sale is already canceled.")
             if sale.state == "confirmed":
-                # Allow cancel from confirmed for v1.1; stock later can tighten this.
-                pass
+                sale._apply_stock(+1)
             sale.state = "canceled"
 
     def action_draft(self):
