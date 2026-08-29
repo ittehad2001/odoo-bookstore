@@ -175,7 +175,8 @@
     <!-- Menus -->
     <menuitem id="bookstore_menu_root"
               name="Bookstore"
-              sequence="20"/>
+              sequence="20"
+              groups="bookstore.group_bookstore_user"/>
 
     <menuitem id="bookstore_menu_sales"
               name="Sales"

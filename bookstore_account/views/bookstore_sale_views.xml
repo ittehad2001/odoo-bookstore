@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="bookstore_sale_view_form_account" model="ir.ui.view">
+        <field name="name">bookstore.sale.form.account</field>
+        <field name="model">bookstore.sale</field>
+        <field name="inherit_id" ref="bookstore.bookstore_sale_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='amount_total']" position="after">
+                <field name="invoice_id" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

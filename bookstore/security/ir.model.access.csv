@@ -1,5 +1,9 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_bookstore_author,access_bookstore_author,model_bookstore_author,base.group_user,1,1,1,1
-access_bookstore_book,access_bookstore_book,model_bookstore_book,base.group_user,1,1,1,1
-access_bookstore_sale,access_bookstore_sale,model_bookstore_sale,base.group_user,1,1,1,1
-access_bookstore_sale_line,access_bookstore_sale_line,model_bookstore_sale_line,base.group_user,1,1,1,1
+access_bookstore_author_user,bookstore.author.user,model_bookstore_author,group_bookstore_user,1,1,1,0
+access_bookstore_author_manager,bookstore.author.manager,model_bookstore_author,group_bookstore_manager,1,1,1,1
+access_bookstore_book_user,bookstore.book.user,model_bookstore_book,group_bookstore_user,1,1,1,0
+access_bookstore_book_manager,bookstore.book.manager,model_bookstore_book,group_bookstore_manager,1,1,1,1
+access_bookstore_sale_user,bookstore.sale.user,model_bookstore_sale,group_bookstore_user,1,1,1,0
+access_bookstore_sale_manager,bookstore.sale.manager,model_bookstore_sale,group_bookstore_manager,1,1,1,1
+access_bookstore_sale_line_user,bookstore.sale.line.user,model_bookstore_sale_line,group_bookstore_user,1,1,1,0
+access_bookstore_sale_line_manager,bookstore.sale.line.manager,model_bookstore_sale_line,group_bookstore_manager,1,1,1,1
