@@ -66,7 +66,8 @@ After Python/XML changes: **restart** (for Python) and/or **Upgrade** the module
 
 | Module | Purpose |
 |--------|---------|
-| `estate` | Real-estate learning app (properties, types, state, computed area) |
+| `estate` | Real-estate learning app (Server framework 101) |
+| `estate_account` | Link module: invoice buyer when property is Sold |
 | `bookstore` | Portfolio module slice v1: Book + Author (buyer/sale/stock later) |
 
 ## Production notes
