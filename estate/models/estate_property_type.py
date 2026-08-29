@@ -6,6 +6,11 @@ class EstatePropertyType(models.Model):
     _description = "Real Estate Property Type"
     _order = "name"
 
+    _name_uniq = models.Constraint(
+        "UNIQUE(name)",
+        "A property type with this name already exists.",
+    )
+
     name = fields.Char(required=True)
     property_ids = fields.One2many(
         "estate.property",
