@@ -32,6 +32,12 @@ class EstatePropertyOffer(models.Model):
         string="Property",
         required=True,
     )
+    property_type_id = fields.Many2one(
+        "estate.property.type",
+        string="Property Type",
+        related="property_id.property_type_id",
+        store=True,
+    )
     validity = fields.Integer(string="Validity (days)", default=7)
     date_deadline = fields.Date(
         string="Deadline",
@@ -57,6 +63,15 @@ class EstatePropertyOffer(models.Model):
                 else fields.Date.context_today(offer)
             )
             offer.validity = (offer.date_deadline - start).days if offer.date_deadline else 0
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        offers = super().create(vals_list)
+        for offer in offers:
+            prop = offer.property_id
+            if prop.state == "new":
+                prop.state = "offer_received"
+        return offers
 
     def action_accept(self):
         """Accept offer → set property selling price + buyer (docs Ch.9)."""

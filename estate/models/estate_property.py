@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools.float_utils import float_compare, float_is_zero
@@ -6,6 +8,7 @@ from odoo.tools.float_utils import float_compare, float_is_zero
 class EstateProperty(models.Model):
     _name = "estate.property"
     _description = "Real Estate Property"
+    _order = "id desc"
 
     _check_expected_price_positive = models.Constraint(
         "CHECK(expected_price > 0)",
@@ -22,6 +25,7 @@ class EstateProperty(models.Model):
     date_availability = fields.Date(
         string="Available From",
         copy=False,
+        default=lambda self: fields.Date.context_today(self) + timedelta(days=90),
     )
     expected_price = fields.Float(string="Expected Price", required=True)
     selling_price = fields.Float(
@@ -35,7 +39,6 @@ class EstateProperty(models.Model):
     garage = fields.Boolean(string="Garage")
     garden = fields.Boolean(string="Garden")
     garden_area = fields.Integer(string="Garden Area")
-    # Laravel accessor: getTotalAreaAttribute() — not a DB column by default
     total_area = fields.Integer(
         string="Total Area",
         compute="_compute_total_area",
@@ -49,12 +52,10 @@ class EstateProperty(models.Model):
         ],
         string="Garden Orientation",
     )
-    # belongsTo(PropertyType)
     property_type_id = fields.Many2one(
         "estate.property.type",
         string="Property Type",
     )
-    # buyer = Contact (res.partner); salesperson = User
     buyer_id = fields.Many2one(
         "res.partner",
         string="Buyer",
@@ -65,12 +66,10 @@ class EstateProperty(models.Model):
         string="Salesperson",
         default=lambda self: self.env.user,
     )
-    # belongsToMany(Tag)
     tag_ids = fields.Many2many(
         "estate.property.tag",
         string="Tags",
     )
-    # hasMany(Offer)
     offer_ids = fields.One2many(
         "estate.property.offer",
         "property_id",
@@ -106,7 +105,6 @@ class EstateProperty(models.Model):
 
     @api.onchange("garden")
     def _onchange_garden(self):
-        # Form-only helper (like livewire/alpine UX) — not server business logic
         if self.garden:
             self.garden_area = 10
             self.garden_orientation = "north"
@@ -147,7 +145,6 @@ class EstateProperty(models.Model):
 
     @api.constrains("selling_price", "expected_price")
     def _check_selling_price(self):
-        """Selling price cannot be lower than 90% of expected (docs Ch.10)."""
         for record in self:
             if float_is_zero(record.selling_price, precision_rounding=0.01):
                 continue
