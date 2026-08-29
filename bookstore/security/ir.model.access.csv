@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_bookstore_author,access_bookstore_author,model_bookstore_author,base.group_user,1,1,1,1
 access_bookstore_book,access_bookstore_book,model_bookstore_book,base.group_user,1,1,1,1
+access_bookstore_sale,access_bookstore_sale,model_bookstore_sale,base.group_user,1,1,1,1
+access_bookstore_sale_line,access_bookstore_sale_line,model_bookstore_sale_line,base.group_user,1,1,1,1

@@ -87,10 +87,98 @@
         <field name="view_mode">list,form</field>
     </record>
 
+    <!-- Sale views -->
+    <record id="bookstore_sale_view_list" model="ir.ui.view">
+        <field name="name">bookstore.sale.list</field>
+        <field name="model">bookstore.sale</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="date_order"/>
+                <field name="amount_total"/>
+                <field name="state"
+                         decoration-info="state == 'draft'"
+                         decoration-success="state == 'confirmed'"
+                         decoration-muted="state == 'canceled'"
+                         widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="bookstore_sale_view_form" model="ir.ui.view">
+        <field name="name">bookstore.sale.form</field>
+        <field name="model">bookstore.sale</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_confirm" type="object"
+                            string="Confirm" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_cancel" type="object"
+                            string="Cancel"
+                            invisible="state == 'canceled'"/>
+                    <button name="action_draft" type="object"
+                            string="Reset to Draft"
+                            invisible="state != 'canceled'"/>
+                    <field name="state" widget="statusbar"
+                            statusbar_visible="draft,confirmed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id"
+                                     readonly="state != 'draft'"/>
+                            <field name="date_order"
+                                     readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="amount_total"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Order Lines">
+                            <field name="line_ids"
+                                     readonly="state != 'draft'">
+                                <list editable="bottom">
+                                    <field name="book_id"/>
+                                    <field name="quantity"/>
+                                    <field name="price_unit"/>
+                                    <field name="price_subtotal"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes">
+                            <field name="note" nolabel="1"
+                                     readonly="state != 'draft'"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="bookstore_sale_action" model="ir.actions.act_window">
+        <field name="name">Sales</field>
+        <field name="res_model">bookstore.sale</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
     <!-- Menus -->
     <menuitem id="bookstore_menu_root"
               name="Bookstore"
               sequence="20"/>
+
+    <menuitem id="bookstore_menu_sales"
+              name="Sales"
+              parent="bookstore_menu_root"
+              action="bookstore_sale_action"
+              sequence="5"/>
 
     <menuitem id="bookstore_menu_books"
               name="Books"

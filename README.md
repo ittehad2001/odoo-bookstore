@@ -68,7 +68,7 @@ After Python/XML changes: **restart** (for Python) and/or **Upgrade** the module
 |--------|---------|
 | `estate` | Real-estate learning app — **Server framework 101 complete** (Ch.1–15 + PDF reports) |
 | `estate_account` | Link module: invoice buyer when property is Sold (+ report inherit) |
-| `bookstore` | Portfolio module slice v1: Book + Author (buyer/sale/stock later) |
+| `bookstore` | Portfolio module — v1.1: Book, Author, Sale + lines (`res.partner` customer) |
 
 ## Production notes
 
