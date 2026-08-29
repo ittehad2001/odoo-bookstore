@@ -39,12 +39,33 @@ class EstateProperty(models.Model):
         ],
         string="Garden Orientation",
     )
-    # belongsTo(PropertyType) — FK column property_type_id
+    # belongsTo(PropertyType)
     property_type_id = fields.Many2one(
         "estate.property.type",
         string="Property Type",
     )
-    # status enum on the model (not a free-text Char)
+    # buyer = Contact (res.partner); salesperson = User
+    buyer_id = fields.Many2one(
+        "res.partner",
+        string="Buyer",
+        copy=False,
+    )
+    user_id = fields.Many2one(
+        "res.users",
+        string="Salesperson",
+        default=lambda self: self.env.user,
+    )
+    # belongsToMany(Tag)
+    tag_ids = fields.Many2many(
+        "estate.property.tag",
+        string="Tags",
+    )
+    # hasMany(Offer)
+    offer_ids = fields.One2many(
+        "estate.property.offer",
+        "property_id",
+        string="Offers",
+    )
     state = fields.Selection(
         selection=[
             ("new", "New"),
@@ -65,7 +86,6 @@ class EstateProperty(models.Model):
             record.total_area = (record.living_area or 0) + (record.garden_area or 0)
 
     def action_offer_received(self):
-        """Laravel: $property->update(['state' => 'offer_received'])"""
         for record in self:
             record._check_not_final()
             record.state = "offer_received"
