@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Property Type: list ≈ index -->
+    <record id="estate_property_type_view_list" model="ir.ui.view">
+        <field name="name">estate.property.type.list</field>
+        <field name="model">estate.property.type</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Property Type: form ≈ create/edit (+ hasMany properties) -->
+    <record id="estate_property_type_view_form" model="ir.ui.view">
+        <field name="name">estate.property.type.form</field>
+        <field name="model">estate.property.type</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                    <notebook>
+                        <page string="Properties">
+                            <field name="property_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="expected_price"/>
+                                    <field name="postcode"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="estate_property_type_action" model="ir.actions.act_window">
+        <field name="name">Property Types</field>
+        <field name="res_model">estate.property.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Property list -->
+    <record id="estate_property_view_list" model="ir.ui.view">
+        <field name="name">estate.property.list</field>
+        <field name="model">estate.property</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="property_type_id"/>
+                <field name="postcode"/>
+                <field name="bedrooms"/>
+                <field name="expected_price"/>
+                <field name="selling_price"/>
+                <field name="date_availability"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Property form -->
+    <record id="estate_property_view_form" model="ir.ui.view">
+        <field name="name">estate.property.form</field>
+        <field name="model">estate.property</field>
+        <field name="arch" type="xml">
+            <form>
+                <!-- header ≈ action buttons on a Filament resource page -->
+                <header>
+                    <button name="action_offer_received" type="object"
+                            string="Offer Received"
+                            invisible="state != 'new'"/>
+                    <button name="action_offer_accepted" type="object"
+                            string="Accept Offer"
+                            invisible="state != 'offer_received'"/>
+                    <button name="action_sold" type="object"
+                            string="Sold" class="btn-primary"
+                            invisible="state not in ('offer_accepted', 'offer_received', 'new')"/>
+                    <button name="action_cancel" type="object"
+                            string="Cancel"
+                            invisible="state in ('sold', 'canceled')"/>
+                    <field name="state" widget="statusbar"
+                            statusbar_visible="new,offer_received,offer_accepted,sold"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="property_type_id"/>
+                            <field name="postcode"/>
+                            <field name="date_availability"/>
+                        </group>
+                        <group>
+                            <field name="expected_price"/>
+                            <field name="selling_price"/>
+                            <field name="bedrooms"/>
+                        </group>
+                    </group>
+                    <group string="Areas">
+                        <group>
+                            <field name="living_area"/>
+                            <field name="garden_area"/>
+                            <field name="total_area"/>
+                        </group>
+                        <group>
+                            <field name="facades"/>
+                            <field name="garage"/>
+                            <field name="garden"/>
+                            <field name="garden_orientation"/>
+                        </group>
+                    </group>
+                    <group string="Description">
+                        <field name="description" nolabel="1" colspan="2"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="estate_property_action" model="ir.actions.act_window">
+        <field name="name">Properties</field>
+        <field name="res_model">estate.property</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="estate_menu_root"
+              name="Estate"
+              sequence="10"/>
+
+    <menuitem id="estate_menu_properties"
+              name="Properties"
+              parent="estate_menu_root"
+              action="estate_property_action"
+              sequence="10"/>
+
+    <menuitem id="estate_menu_property_types"
+              name="Property Types"
+              parent="estate_menu_root"
+              action="estate_property_type_action"
+              sequence="20"/>
+</odoo>
