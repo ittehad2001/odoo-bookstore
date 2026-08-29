@@ -6,6 +6,11 @@ class BookstoreBook(models.Model):
     _description = "Bookstore Book"
     _order = "name"
 
+    _isbn_uniq = models.Constraint(
+        "UNIQUE(isbn)",
+        "A book with this ISBN already exists.",
+    )
+
     name = fields.Char(string="Title", required=True)
     isbn = fields.Char(string="ISBN")
     # belongsTo(Author)
