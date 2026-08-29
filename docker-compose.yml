@@ -1,0 +1,37 @@
+# Odoo custom addons (dev kit)
+# Compatible with docker-compose 1.29+ and Compose V2.
+version: "3.3"
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-odoo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data
+    # Uncomment to inspect DB from the host:
+    # ports:
+    #   - "5432:5432"
+
+  web:
+    image: odoo:19
+    depends_on:
+      - db
+    ports:
+      - "${ODOO_HTTP_PORT:-8069}:8069"
+    environment:
+      HOST: db
+      USER: ${POSTGRES_USER:-odoo}
+      PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+      - ./config/odoo.conf:/etc/odoo/odoo.conf:ro
+      # Repo root = addons path (only folders with __manifest__.py load)
+      - ./:/mnt/extra-addons
+    command: odoo -c /etc/odoo/odoo.conf
+
+volumes:
+  odoo-web-data:
+  odoo-db-data:

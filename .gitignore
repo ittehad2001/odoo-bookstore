@@ -1,4 +1,13 @@
+# Ignore local secrets and generated config
+.env
+config/odoo.conf
+
+# Python
 __pycache__/
 *.py[cod]
 *.egg-info/
+
+# OS / editor
 .DS_Store
+.idea/
+.vscode/

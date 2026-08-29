@@ -1,0 +1,13 @@
+[options]
+# Example config for a SOURCE install (clone Odoo core separately).
+# Copy to your machine as odoo.conf and adjust paths/passwords.
+# NEVER commit a real odoo.conf with production secrets.
+
+admin_passwd = CHANGE_ME_STRONG_PASSWORD
+db_host = 127.0.0.1
+db_port = 5432
+db_user = odoo
+db_password = CHANGE_ME
+addons_path = /path/to/odoo/addons,/path/to/this-repo
+http_port = 8069
+http_interface = 127.0.0.1
