@@ -11,15 +11,16 @@ function money(value: number) {
 }
 
 export function CheckoutPage() {
-  const { items, subtotal, clear } = useCart()
+  const { items, subtotal } = useCart()
   const navigate = useNavigate()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [placed, setPlaced] = useState(false)
 
-  if (items.length === 0) {
+  if (items.length === 0 && !busy && !placed) {
     return <Navigate to="/cart" replace />
   }
 
@@ -35,8 +36,8 @@ export function CheckoutPage() {
           quantity: item.quantity,
         })),
       })
-      clear()
-      navigate('/success', { state: result })
+      setPlaced(true)
+      navigate('/success', { state: result, replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Checkout failed')
     } finally {
@@ -78,7 +79,7 @@ export function CheckoutPage() {
         </label>
         {error && <p className="error">{error}</p>}
         <div className="actions">
-          <button type="submit" className="cta" disabled={busy}>
+          <button type="submit" className="cta" disabled={busy || placed}>
             {busy ? 'Placing order…' : 'Place order'}
           </button>
           <Link to="/cart" className="text-link">

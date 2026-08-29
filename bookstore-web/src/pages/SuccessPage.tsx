@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useCart } from '../cart/CartContext'
 import type { CheckoutResult } from '../types'
 
 function money(value: number) {
@@ -10,7 +12,16 @@ function money(value: number) {
 
 export function SuccessPage() {
   const location = useLocation()
+  const { clear } = useCart()
   const result = location.state as CheckoutResult | null
+
+  useEffect(() => {
+    if (result?.sale?.id) {
+      clear()
+    }
+    // Clear once when landing on a successful order.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result?.sale?.id])
 
   if (!result?.sale) {
     return (

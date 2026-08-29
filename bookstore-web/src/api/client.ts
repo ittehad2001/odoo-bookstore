@@ -8,7 +8,8 @@ function apiHeaders(extra: HeadersInit = {}): HeadersInit {
   const headers: Record<string, string> = {
     ...(extra as Record<string, string>),
   }
-  if (ODOO_DB) {
+  // Only needed when calling Odoo directly (not via Vite proxy).
+  if (ODOO_DB && API_BASE) {
     headers['X-Odoo-Database'] = ODOO_DB
   }
   return headers
