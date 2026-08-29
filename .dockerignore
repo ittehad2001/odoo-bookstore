@@ -1,0 +1,9 @@
+node_modules
+bookstore-web/node_modules
+bookstore-web/dist
+.git
+.env
+config/odoo.conf
+**/__pycache__
+**/*.pyc
+.DS_Store

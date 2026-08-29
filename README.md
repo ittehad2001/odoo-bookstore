@@ -1,18 +1,17 @@
 # Odoo Bookstore (custom addons)
 
-Custom Odoo **19** modules and a small **dev kit** so others can run them.
+Custom Odoo **19** modules, a React storefront, and a **prod-like Docker** kit.
 
 This repo is **not** the full Odoo framework. Think Laravel: this is your `app/` + packages, not the framework core or `.env` secrets.
 
 | In this repo | Not in this repo |
 |--------------|------------------|
-| `estate/` (learning module) | Odoo core (`odoo/odoo`) |
-| future `bookstore/` | Python venv |
-| Docker + example configs | Real passwords / production `.env` |
+| `estate/`, `bookstore*`, `bookstore-web/` | Odoo core source |
+| Docker + nginx same-URL layout | Real production secrets |
 
-## Quick start (Docker — easiest clone → run)
+## Quick start — prod-like (same URL)
 
-Needs: Docker + `docker-compose` (v1 or v2).
+Needs: Docker + Compose (v1 or v2).
 
 ```bash
 git clone git@github.com:ittehad2001/odoo-bookstore.git
@@ -20,66 +19,68 @@ cd odoo-bookstore
 
 cp .env.example .env
 cp config/odoo.conf.example config/odoo.conf
+# Edit BOTH files: set matching DB password + admin_passwd (never commit real secrets).
 
-docker-compose up -d
-# If you have Compose V2: docker compose up -d
+docker compose up -d --build
+# or: docker-compose up -d --build
 ```
 
-Open http://localhost:8069
+Open **http://127.0.0.1:8080**
 
-1. Create a database (master password = `admin` from the example config — **change it**).
-2. Apps → **Update Apps List**.
-3. Install **Estate** (and later **Bookstore**).
+| Path | What |
+|------|------|
+| `/` | React storefront (Ink & Spine) |
+| `/api/...` | Bookstore JSON API (proxied to Odoo) |
+| `/odoo` or `/web` | Odoo admin / login |
+
+First boot:
+
+1. Open http://127.0.0.1:8080/web/database/manager  
+2. Create DB named exactly `ODOO_DB_NAME` from `.env` (default `odoo_dev`) using `admin_passwd` from `config/odoo.conf`.  
+3. Apps → **Update Apps List** → install **Bookstore**, **Bookstore Account**, **Bookstore API** (and Estate if you want).  
+4. Set System Parameter `bookstore_api.checkout_key` = `BOOKSTORE_CHECKOUT_KEY` from `.env` (or keep the module default and match `.env`).
 
 Stop:
 
 ```bash
-docker-compose down
+docker compose down
 ```
 
-Data lives in Docker volumes (`odoo-web-data`, `odoo-db-data`).
+Odoo is **not** published on host `:8069` in this layout (only nginx `:8080`). That matches production: app behind a reverse proxy.
 
-## Local source install (this machine / contributors)
+### Laravel map
 
-Use when you develop against Odoo **source** + venv (like `/www/odoo-dev`):
+| Laravel prod | This kit |
+|--------------|----------|
+| nginx → PHP-FPM + public/ | nginx → static SPA + Odoo |
+| `/` app, `/admin` Filament | `/` shop, `/odoo` backend |
+| `/api` routes | `/api/bookstore/...` |
 
-1. Clone [Odoo 19](https://github.com/odoo/odoo/tree/19.0) and create a venv; install `requirements.txt`.
-2. Clone **this** repo (or put it on `addons_path`).
-3. Copy `odoo.conf.example` → your real `odoo.conf` (outside git or gitignored).
-4. Point `addons_path` at Odoo’s `addons` **and** this repo root, e.g.:
+## Local source install (Odoo from git + Vite)
 
-   ```ini
-   addons_path = /path/to/odoo/addons,/path/to/odoo-bookstore
-   ```
+Use when developing against Odoo **source** + venv (like `/www/odoo-dev`):
 
-5. Start Odoo, update apps list, install modules.
-
-Example start:
-
-```bash
-python odoo-bin -c /path/to/odoo.conf
-```
-
-After Python/XML changes: **restart** (for Python) and/or **Upgrade** the module.
+1. Run Odoo on `:8069` with this repo on `addons_path`.  
+2. `cd bookstore-web && cp .env.example .env && npm install && npm run dev` → http://127.0.0.1:5173 (Vite proxies `/api`).
 
 ## Modules
 
-| Module | Purpose |
-|--------|---------|
-| `bookstore` | Portfolio module — v1.3: sales + stock + User/Admin security groups |
-| `bookstore_account` | Invoice customer when a bookstore sale is confirmed |
-| `bookstore_api` | Public JSON API for the React storefront |
-| `bookstore-web/` | Vite React storefront (Ink & Spine) |
-| `estate` | Real-estate learning app — **Server framework 101 complete** (Ch.1–15 + PDF reports) |
-| `estate_account` | Link module: invoice buyer when property is Sold (+ report inherit) |
+| Module / folder | Purpose |
+|-----------------|---------|
+| `bookstore` | Sales + stock + User/Admin security |
+| `bookstore_account` | Invoice on sale confirm |
+| `bookstore_api` | Public JSON API for the storefront |
+| `bookstore-web/` | Vite React storefront |
+| `estate` / `estate_account` | Server framework 101 learning track |
+| `deploy/` | nginx + multi-stage proxy image |
 
 ## Production notes
 
-- Do **not** deploy with example passwords (`admin` / `odoo`).
-- Typical production: Odoo service or containers + managed PostgreSQL + **this repo** (or a release tarball) on `addons_path`.
-- Pin Odoo minor version and back up the DB before upgrades.
-- This kit is a starting point, not a hardened prod checklist (TLS, backups, workers, limitting `admin_passwd`, etc.).
+- Change every password/key in `.env` and `config/odoo.conf` before any public host.  
+- Real TLS: put another proxy (Caddy/Cloudflare) in front of `:8080` or terminate HTTPS on nginx.  
+- Pin image tags, back up Postgres + filestore volumes before upgrades.  
+- This kit is **prod-like topology**, not a full hardened checklist (WAF, backups, workers, monitoring).
 
 ## License
 
-Module licenses are declared per addon in each `__manifest__.py` (Estate: LGPL-3).
+Module licenses are declared per addon in each `__manifest__.py`.

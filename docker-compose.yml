@@ -1,4 +1,4 @@
-# Odoo custom addons (dev kit)
+# Prod-like local stack: nginx (storefront + proxy) → Odoo → Postgres
 # Compatible with docker-compose 1.29+ and Compose V2.
 version: "3.3"
 
@@ -7,30 +7,44 @@ services:
     image: postgres:16
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-odoo}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-db-password}
       POSTGRES_DB: ${POSTGRES_DB:-postgres}
     volumes:
       - odoo-db-data:/var/lib/postgresql/data
-    # Uncomment to inspect DB from the host:
-    # ports:
-    #   - "5432:5432"
+    restart: unless-stopped
 
   web:
     image: odoo:19
     depends_on:
       - db
-    ports:
-      - "${ODOO_HTTP_PORT:-8069}:8069"
+    # Not published on the host — reach Odoo via nginx only (Laravel: app behind nginx).
+    expose:
+      - "8069"
     environment:
       HOST: db
       USER: ${POSTGRES_USER:-odoo}
-      PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+      PASSWORD: ${POSTGRES_PASSWORD:-change-me-db-password}
     volumes:
       - odoo-web-data:/var/lib/odoo
       - ./config/odoo.conf:/etc/odoo/odoo.conf:ro
-      # Repo root = addons path (only folders with __manifest__.py load)
       - ./:/mnt/extra-addons
     command: odoo -c /etc/odoo/odoo.conf
+    restart: unless-stopped
+
+  proxy:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.proxy
+      args:
+        VITE_CHECKOUT_API_KEY: ${BOOKSTORE_CHECKOUT_KEY:-dev-bookstore-key-change-me}
+    depends_on:
+      - web
+    ports:
+      - "${PROXY_HTTP_PORT:-8080}:80"
+    environment:
+      ODOO_UPSTREAM: web:8069
+      ODOO_DB_NAME: ${ODOO_DB_NAME:-odoo_dev}
+    restart: unless-stopped
 
 volumes:
   odoo-web-data:
